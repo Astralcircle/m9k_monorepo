@@ -104,6 +104,7 @@ local player_KeyDown = playerMeta.KeyDown
 function SWEP:Initialize()
     self.Reloadaftershoot = 0 -- Can't reload when firing
     self:SetHoldType( self.HoldType )
+    self:SetReloading( false )
     self.OrigCrossHair = self.DrawCrosshair
 
     local owner = entity_GetOwner( self )
@@ -192,7 +193,10 @@ function SWEP:Deploy()
     if self.DeployDelay then
         self:SetNextPrimaryFire( CurTime() + self.DeployDelay )
     end
-    self:SetReloading( false )
+
+    if self:GetReloading() then
+        self:ReloadAnim()
+    end
 
     local owner = entity_GetOwner( self )
 
@@ -898,6 +902,7 @@ function SWEP:Reload()
     timer.Simple( waitdammit, function()
         if not IsValid( self ) then return end
         if not IsValid( owner ) then return end
+        if owner:GetActiveWeapon() ~= self then return self:SetReloading( false ) end
 
         self:ReloadClip()
         self:SetReloading( false )
