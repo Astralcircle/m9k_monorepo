@@ -159,7 +159,7 @@ if SERVER then
                             effectdata:SetNormal( Vector( 0, 0, 1 ) )
                             util.Effect( "m9k_nuke_disintegrate", effectdata )
 
-                            found:SetModel( "models/player/charple.mdl" )
+                            --found:SetModel( "models/player/charple.mdl" )
                         end
                         util.BlastDamage( self, self.Owner, entpos, 256, 512 )
                     end
@@ -171,7 +171,7 @@ if SERVER then
                     effectdata:SetNormal( Vector( 0, 0, 1 ) )
                     util.Effect( "m9k_nuke_disintegrate", effectdata )
 
-                    found:SetModel( "models/player/charple.mdl" )
+                    --found:SetModel( "models/player/charple.mdl" )
                     util.BlastDamage( self, self.Owner, entpos, 256, 512 )
                 end
             end
@@ -299,8 +299,8 @@ if SERVER then
                 effectdata:SetNormal( pos - self.SplodePos )
                 util.Effect( "m9k_nuke_disintegrate", effectdata )
 
-                ent:SetModel( "models/player/charple.mdl" )
-                ent:SetHealth( 1 )
+                --ent:SetModel( "models/player/charple.mdl" )
+                --ent:SetHealth( 1 )
             end
         end
 
