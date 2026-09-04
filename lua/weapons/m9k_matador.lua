@@ -99,8 +99,6 @@ function SWEP:FireRocket()
         rocket:Activate()
         util.ScreenShake( owner:M9K_GetShootPos(), 1000, 10, 0.3, 500 )
     end
-
-    self:AddRecoil()
 end
 
 function SWEP:SecondaryAttack()
