@@ -124,8 +124,6 @@ function SWEP:FireRocket()
         rocket:Spawn()
         rocket:Activate()
     end
-
-    self:AddRecoil()
 end
 
 function SWEP:Reload()
