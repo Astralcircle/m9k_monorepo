@@ -41,7 +41,6 @@ SWEP.Secondary.Ammo         = ""
 SWEP.IronsightsBlowback = true -- Disabled the default activity and use the blowback system instead?
 SWEP.RecoilBack = 3 -- How much the gun kicks back in iron sights
 SWEP.RecoilRecoverySpeed = 2 -- How fast does the gun return to the center
-SWEP.RecoilKickSpeed = 40 -- How fast accumulated recoil is applied to the view (higher = snappier kick)
 SWEP.RecoilAmount = 0 -- Internal, do not touch
 SWEP.IronSightTime = 0.15
 
@@ -94,9 +93,6 @@ SWEP.IronSightsAng = Vector( 0, 0, 0 )
 
 SWEP.VElements = {}
 SWEP.WElements = {}
-
-SWEP.ActiveRecoilPitch = 0
-SWEP.ActiveRecoilYaw = 0
 
 local entMeta = FindMetaTable( "Entity" )
 local entity_GetTable = entMeta.GetTable
@@ -1115,10 +1111,6 @@ end
 
 function SWEP:Think()
     self:ThinkCustom()
-
-    function SWEP:DrawHUDBackground()
-        self:HandleRecoil()
-    end
 
     local host_timescale = GetConVar( "host_timescale" )
     function SWEP:GetViewModelPosition( pos, ang )

@@ -34,7 +34,6 @@ SWEP.Primary.DefaultClip    = 4
 SWEP.Primary.KickUp         = 3 -- Maximum up recoil (rise)
 SWEP.Primary.KickDown       = 3 -- Maximum down recoil (skeet)
 SWEP.Primary.KickHorizontal = 1 -- Maximum up recoil (stock)
-SWEP.RecoilKickSpeed = 40
 SWEP.Primary.Automatic      = false -- Automatic = true; Semi Auto = false
 SWEP.Primary.Ammo           = "RPG_Round"
 -- pistol, 357, smg1, ar2, buckshot, slam, SniperPenetratedRound, AirboatGun
