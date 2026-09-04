@@ -78,6 +78,7 @@ end
 
 local defaultClipMult = GetConVar( "M9KDefaultClip" )
 local dmgMultCvar = GetConVar( "M9KDamageMultiplier" )
+local dynamicrecoilCvar = GetConVar( "M9KDynamicRecoil" )
 local damageMultiplier = dmgMultCvar:GetFloat()
 local IS_SINGLEPLAYER = game.SinglePlayer()
 
@@ -831,27 +832,38 @@ function SWEP:ShootBullet( damage, bulletCount, aimcone )
         hook.Run( "M9K_BulletFired", self, owner )
     end
 
-    self:AddRecoil()
+    local x = util.SharedRandom( "m9k_viewpunch", -self.Primary.KickDown, -self.Primary.KickUp * self.KickUpMultiplier, 100 )
+    local y = util.SharedRandom( "m9k_viewpunch", -self.Primary.KickHorizontal, self.Primary.KickHorizontal, 200 )
+    local anglo1 = Angle( x, y, 0 )
+
+    if self:GetIronsightsActive() and not self.Scoped then
+        anglo1 = anglo1 * 0.5
+    end
+
+    owner:ViewPunch( anglo1 )
+
+    if SERVER and IS_SINGLEPLAYER and not owner:IsNPC() then
+        local offlineeyes = owner:EyeAngles()
+        offlineeyes.pitch = offlineeyes.pitch + anglo1.pitch
+        offlineeyes.yaw = offlineeyes.yaw + anglo1.yaw
+        if dynamicrecoilCvar:GetBool() then
+            owner:SetEyeAngles( offlineeyes )
+        end
+    end
+
+    if CLIENT and not IS_SINGLEPLAYER and not owner:IsNPC() then
+        -- case 1 old random
+        local eyes = owner:EyeAngles()
+        eyes.pitch = eyes.pitch + ( anglo1.pitch / 3 )
+        eyes.yaw = eyes.yaw + ( anglo1.yaw / 3 )
+        if IsFirstTimePredicted() and dynamicrecoilCvar:GetBool() then
+            owner:SetEyeAngles( eyes )
+        end
+    end
 end
 
 function SWEP:SecondaryAttack()
     return false
-end
-
-function SWEP:AddRecoil()
-    if not CLIENT then return end
-    if not IsFirstTimePredicted() then return end
-
-    local recoilPitch = math.Rand( -self.Primary.KickDown, -self.Primary.KickUp * self.KickUpMultiplier )
-    local recoilYaw = math.Rand( -self.Primary.KickHorizontal, self.Primary.KickHorizontal )
-
-    if self:GetIronsightsActive() and not self.Scoped then
-        recoilPitch = recoilPitch * 0.5
-        recoilYaw = recoilYaw * 0.5
-    end
-
-    self.ActiveRecoilPitch = self.ActiveRecoilPitch + recoilPitch
-    self.ActiveRecoilYaw = self.ActiveRecoilYaw + recoilYaw
 end
 
 function SWEP:ReloadAnim()
@@ -880,7 +892,16 @@ function SWEP:Reload()
     if owner:GetAmmoCount( self:GetPrimaryAmmoType() ) <= 0 then return end
     if self:GetIronsights() and owner:KeyDown( IN_ATTACK2 ) then return end
 
-    self:ReloadAnim()
+    if owner:IsNPC() then
+        self:DefaultReload( ACT_VM_RELOAD )
+        return
+    end
+
+    if self.SilencerAttached then
+        self:DefaultReload( ACT_VM_RELOAD_SILENCED )
+    else
+        self:DefaultReload( ACT_VM_RELOAD )
+    end
 
     if CLIENT then
         self.DrawCrosshair = false
@@ -1094,34 +1115,6 @@ end
 
 function SWEP:Think()
     self:ThinkCustom()
-
-    self:SetRunning( self:IsRunning() )
-end
-
-if CLIENT then
-    function SWEP:HandleRecoil()
-        local owner = entity_GetOwner( self )
-        if not IsValid( owner ) then return end
-        if not owner:IsPlayer() then return end
-
-        local recoilPitch = self.ActiveRecoilPitch or 0
-        local recoilYaw = self.ActiveRecoilYaw or 0
-
-        if math.abs( recoilPitch ) < 0.001 and math.abs( recoilYaw ) < 0.001 then
-            self.ActiveRecoilPitch = 0
-            self.ActiveRecoilYaw = 0
-            return
-        end
-
-        local decay = math.exp( -self.RecoilKickSpeed * FrameTime() )
-        local newPitch = recoilPitch * decay
-        local newYaw = recoilYaw * decay
-
-        self.ActiveRecoilPitch = newPitch
-        self.ActiveRecoilYaw = newYaw
-
-        owner:SetEyeAngles( owner:EyeAngles() + Angle( recoilPitch - newPitch, recoilYaw - newYaw, 0 ) )
-    end
 
     function SWEP:DrawHUDBackground()
         self:HandleRecoil()
