@@ -741,7 +741,7 @@ end
 local shotBiasMin  = GetConVar( "ai_shot_bias_min" ):GetFloat()
 local shotBiasMax  = GetConVar( "ai_shot_bias_max" ):GetFloat()
 
-local function getSpread( gun, dir, vec )
+local function getSpread( gun, dir, aimcone )
     local owner = entity_GetOwner( gun )
 
     local ang = dir:Angle()
@@ -780,9 +780,8 @@ local function getSpread( gun, dir, vec )
         end
     end
 
-    local vec_x, vec_y = vec:Unpack()
-    right:Mul(vec_x * x)
-    up:Mul(vec_y * y)
+    right:Mul(aimcone * x)
+    up:Mul(aimcone * y)
 
     dir:Add(right)
     dir:Add(up)
@@ -822,7 +821,7 @@ function SWEP:ShootBullet( damage, bulletCount, aimcone )
         else
             local engineSpread = m9k_enginespread:GetBool()
             local spreadDir = engineSpread and Vector( aimcone, aimcone, 0 ) or spreadVec
-            local dir = engineSpread and bulletDir or getSpread( self, bulletDir, Vector( aimcone, aimcone, 0 ) )
+            local dir = engineSpread and bulletDir or getSpread( self, bulletDir, aimcone )
             bullet = {
                 Inflictor = self,
                 Num = bulletCount,
